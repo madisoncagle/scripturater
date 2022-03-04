@@ -131,15 +131,15 @@ p {
 }
 
 .like {
-  color: #538D4E;
+  color: #6aaa64;
 }
 
 .neutral {
-  color: #B59F3B;
+  color: #c9b458;
 }
 
 .dislike {
-  color: #aa4d4d;
+  color: #cc5c5c;
 }
 
 .muted {
