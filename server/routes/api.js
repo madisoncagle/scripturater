@@ -8,26 +8,26 @@ let words = ["hebrews", "proverb", "goliath", "Mystery"];
 let ratings = [];
 
 
-fs.readFile( path.join(__dirname, "../data/7.proper.txt"), 
-            "utf-8", 
-            (err, data)=> {
-                if( err) {
-                    console.error( err);
-                    return;
-                }
+fs.readFile(path.join(__dirname, "../data/seven.txt"),
+  "utf-8",
+  (err, data) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
 
-                words = data.split('\n');
-});
+    words = data.split('\n');
+  });
 
 /* WORDS */
 
 /* GET /api/words/ */
 /* return all the words from the word list */
 router.get("/words", function (req, res, next) {
-  
+
   allWords = []
-  for(let i=0; i<words.length;i++) {
-    allWords.push( {word: words[i], id: i , verse: "The Lord is my Shepherd..." });
+  for (let i = 0; i < words.length; i++) {
+    allWords.push({ word: words[i], id: i, verse: "The Lord is my Shepherd..." });
   }
 
   res.send(allWords);
@@ -77,7 +77,7 @@ router.put("/word/:id", function (req, res, next) {
   res.send({ word: word, id: wordId, verse: "The Lord is my Shepherd..." });
 });
 
-// TODO
+// FIXME
 /* DELETE /api/words/5 */
 /* return a random word from the word list */
 router.delete("/words/:id", function (req, res, next) {
@@ -89,7 +89,8 @@ router.delete("/words/:id", function (req, res, next) {
     res.status(404).send("No word with that id in database.");
   }
 
-  words = words.filter( w => w.id !== wordId);
+  words = words.filter(w => w !== word);
+  console.log(words);
 
   res.send({ word: word, id: wordId, verse: "The Lord is my Shepherd..." });
 });
@@ -102,10 +103,10 @@ router.delete("/words/:id", function (req, res, next) {
 /* GET /api/word/5/ratings */
 /* get all the rating objects for a given word
 */
-router.get( '/words/:id/ratings', (req, res)=> {
+router.get('/words/:id/ratings', (req, res) => {
   const wordId = parseInt(req.params.id);
 
-  const ratingsForWord = ratings.filter( r => r.wordId===wordId );
+  const ratingsForWord = ratings.filter(r => r.wordId === wordId);
 
   res.send(ratingsForWord);
 });
@@ -113,20 +114,20 @@ router.get( '/words/:id/ratings', (req, res)=> {
 /* GET /api/word/5/ratings/id */
 /* get the rating object by ratingId
 */
-router.get( '/words/:wordId/ratings/:id', (req, res)=> {
+router.get('/words/:wordId/ratings/:id', (req, res) => {
   const id = req.params.id;
 
-  const rating = ratings.find( r => r.id===id );
+  const rating = ratings.find(r => r.id === id);
   console.log(rating);
 
-  if( rating ){
+  if (rating) {
     res.send(rating);
   }
   else {
     res.status(404).send("No rating with that id");
   }
 
-  
+
 });
 
 /* POST /api/word/5/ratings */
@@ -146,22 +147,40 @@ router.post("/words/:id/ratings", function (req, res, next) {
 });
 
 
-// TODO 
 /* PUT /api/words/5/ratings/1080c5b7-c3c0-4984-9e59-720101719fe2 */
 /* edit an existing rating object for a given word
     BODY: {"rating" : "like"}
 */
-router.put( '/words/:wordId/ratings/:ratingId', (req, res)=> {
-  
+router.put('/words/:wordId/ratings/:ratingId', (req, res) => {
+  const ratingId = req.params.ratingId;
+  const newRating = req.body.rating;
+  const rating = ratings.find(r => r.id === ratingId);
+
+  rating.rating = newRating;
+
+  if (rating) {
+    res.send(rating);
+  }
+  else {
+    res.status(404).send("Invalid rating id");
+  }
 });
 
 
-// TODO 
 /* DELETE /api/words/5/ratings/1080c5b7-c3c0-4984-9e59-720101719fe2 */
 /* delete an existing rating object for a given word
 */
-router.delete( '/words/:wordId/ratings/:ratingId', (req, res)=> {
-  
+router.delete('/words/:wordId/ratings/:ratingId', (req, res) => {
+  const ratingId = req.params.ratingId;
+  const rating = ratings.find(r => r.id === ratingId);
+
+  if (!rating) {
+    res.status(404).send("Invalid rating id");
+  }
+
+  console.log(rating);
+  ratings = ratings.filter(r => r.id !== ratingId);
+  res.send(rating);
 });
 
 module.exports = router;
